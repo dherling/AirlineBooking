@@ -1,0 +1,424 @@
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.*;
+
+public class GUI2 extends JFrame
+{
+	private static final long serialVersionUID = 1L;
+	private JFrame f;
+	private JRadioButton s1EB,s2EB,s3EB,winEB,midEB,aisEB,s1FB,s2FB,winFB,aisFB;
+	private ButtonGroup seatG,prefG;
+	private JButton book;
+	private SeatingChart seatMap;
+
+	//Fresh Palate
+	static Color darkCol = new Color (14,31,37);
+	static Color mainCol = new Color (54,161,147);
+	static Color hiliteCol = new Color (244,227,5);
+	static Color liteCol = new Color (219,215,203);
+	
+	//Patriot Palate
+//	static Color darkCol = new Color (0,25,46);
+//	static Color mainCol = new Color (94,9,20);
+//	static Color hiliteCol = new Color (8,44,77);
+//	static Color liteCol = new Color (247,226,176);
+	
+	//Orange Palate
+//	static Color darkCol = new Color (65,65,65);
+//	static Color mainCol = new Color (226,127,44);
+//	static Color hiliteCol = new Color (69,98,156);
+//	static Color liteCol = new Color (227,225,210);
+//		
+//	//Green Palate
+//	static  Color darkCol = new Color (65,65,65);
+//	static  Color mainCol = new Color (101,108,40);
+//	static  Color hiliteCol = new Color (175,188,38);
+//	static  Color liteCol = new Color (196,202,128);
+	
+	private static boolean ordered = false;
+	private boolean available = true;
+	private static int classType = 0;//1 - first, 2 - economy
+	private static Rows[] classRow = null;
+	private static int row = 0;
+	private static int passNum = 0;
+	
+	private static char seatPref = 0;
+	private static String message = null;
+	private String GUIMsg = ("Booking Information.");
+	private ActionListener listener;
+	private static JTextArea history;
+	
+	private static final int FIRSTROW = 5;//twice as long for both aisles
+	private static final int FIRSTCOLUMN = 4;
+	private static final int ECONROW = 30;//twice as long for both aisles
+	private static final int ECONCOLUMN = 6;
+	
+	//Creates an airplane with first and economy class seats
+	private static Airplane flight = new Airplane(FIRSTROW, FIRSTCOLUMN, ECONROW, ECONCOLUMN);
+	/**
+	 * @author Benjamin Czerwin and David Herling
+	 * @date 4/4/14
+	 */
+	public static void main(String[] args) 
+	{
+		new GUI2();
+	}
+	public GUI2()
+	{
+		menu();
+	}
+	public void menu ()
+	{
+		seatMap = new SeatingChart(flight);
+		f= new JFrame("Liu Airlines - Flight 1156");
+		f.getContentPane().setBackground(liteCol);
+		f.setSize(1060, 440);
+		f.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
+		f.setTitle("Liu Airlines - Flight 1156 - Seating Chart");
+		f.add(seatMap, BorderLayout.CENTER);
+		historyPanel();
+		BookPanel(1);
+		BookPanel(2);
+		f.setVisible(true);
+	}
+	public void historyPanel()
+	{
+		JPanel panel = new JPanel();
+		JPanel fButton = firstButton();
+		
+		JPanel eButton = econButton();
+		history = new JTextArea (10, 40);
+		JScrollPane scroll = new JScrollPane (history);
+		history.setEditable(false);
+		history.setOpaque(true);
+		history.setBackground(darkCol);
+		history.setForeground(liteCol);
+		
+		panel.add(fButton);
+
+		panel.add(scroll);		
+		panel.add(eButton);
+		panel.setBackground(mainCol);
+		f.add(panel, BorderLayout.SOUTH);		
+	}
+	public void BookPanel(int c)
+	{
+		JPanel seats = seatP(c);
+		JPanel pref = prefP(c);
+				
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout (2, 1));
+
+		panel.add(seats);
+		panel.add(pref);
+
+		add(panel);
+		if (c==1)	f.add(panel, BorderLayout.WEST);
+		else f.add(panel, BorderLayout.EAST);
+	}
+	public JPanel seatP(int c)
+	{
+		seatG = new ButtonGroup();
+		JPanel panel = new JPanel();
+		if (c==2)
+			{
+			s1EB = new JRadioButton("One");
+			s2EB = new JRadioButton("Two");
+			s3EB = new JRadioButton("Three", true);
+			s1EB.setBackground(liteCol);
+			s2EB.setBackground(liteCol);
+			s3EB.setBackground(liteCol);
+			seatG.add(s1EB);
+			seatG.add(s2EB);
+			seatG.add(s3EB);
+			panel.add(s1EB);		
+			panel.add(s2EB);
+			panel.add(s3EB);
+			panel.setBorder(new TitledBorder("ECONOMY - No. of seats"));
+			}
+		else 
+			{
+			s1FB = new JRadioButton("One");
+			s2FB = new JRadioButton("Two", true);
+			s1FB.setBackground(liteCol);
+			s2FB.setBackground(liteCol);
+			seatG.add(s1FB);
+			seatG.add(s2FB);
+			panel.add(s1FB);		
+			panel.add(s2FB);
+			panel.setBorder(new TitledBorder("FIRST - No. of seats"));
+			}		
+		panel.setBackground(liteCol);
+		
+		return panel;
+	}
+	public JPanel prefP(int c)
+	{
+		prefG = new ButtonGroup();
+		JPanel panel = new JPanel();
+		if (c==2)
+		{
+			winEB = new JRadioButton("Window", true);
+			midEB = new JRadioButton("Middle");
+			aisEB = new JRadioButton("Aisle");
+			winEB.setBackground(liteCol);
+			midEB.setBackground(liteCol);
+			aisEB.setBackground(liteCol);			
+			prefG.add(aisEB);
+			prefG.add(midEB);
+			prefG.add(winEB);
+			panel.add(aisEB);
+			panel.add(midEB);
+			panel.add(winEB);
+			panel.setBorder(new TitledBorder("ECONOMY - Preference"));
+		}
+		else
+		{
+			winFB = new JRadioButton("Window", true);
+			aisFB = new JRadioButton("Aisle");
+			winFB.setBackground(liteCol);
+			aisFB.setBackground(liteCol);			
+			prefG.add(aisFB);
+			prefG.add(winFB);
+			panel.add(aisFB);
+			panel.add(winFB);
+			panel.setBorder(new TitledBorder("FIRST - Preference"));
+		}
+		panel.setBackground(liteCol);
+		
+		return panel;
+	}
+	public JPanel firstButton()
+	{
+		JPanel panel = new JPanel();
+		book = new JButton ("BOOK FIRST CLASS SEATS");
+		book.setBackground (darkCol);
+		book.setForeground(liteCol);
+		book.setBounds(10,30,80,80);
+		class Choice implements ActionListener
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				ordered=false;
+				getFirstBookingInfo();
+				checkSeats();
+				if (available==true) giveSeat();
+				seatMap.repaint();
+			}
+		}
+		listener = new Choice();
+		book.addActionListener(listener);
+		panel.setBackground(hiliteCol);
+		panel.add(book, BorderLayout.CENTER);
+		return panel;
+	}
+	public JPanel econButton()
+	{
+		JPanel panel = new JPanel();
+		book = new JButton ("BOOK ECONOMY SEATS");
+		book.setBackground (darkCol);
+		book.setForeground(liteCol);
+		book.setBounds(10,30,80,80);
+		class Choice implements ActionListener
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				ordered=false;
+				getEconBookingInfo();
+				checkSeats();
+				if (available==true) giveSeat();
+				seatMap.repaint();
+			}
+		}
+		listener = new Choice();
+		book.addActionListener(listener);
+		panel.setBackground(hiliteCol);
+		panel.add(book);
+		return panel;
+	}
+	public void checkSeats()
+	{
+		available=true;//default, only made false if problem is found
+		while (available==true)
+		{
+			if (classType==1 && available==true)
+			{
+				if (flight.isFull(flight.getFirstRow()) == false && available==true)
+				//checks to make sure first class seats are available.
+				{
+					GUIMsg=("Sorry, all first class seats are booked.\n" +
+							"\tPlease enter another choice.");
+					Toolkit.getDefaultToolkit().beep();
+					available=false;
+				}
+				if (seatPref == 'm' && classType==1 && available==true)
+				{
+					GUIMsg=("Middle row seating not available in first class.");
+					Toolkit.getDefaultToolkit().beep();
+					available=false;
+				}
+				if (passNum==3 && classType==1 && available==true)
+				{
+					GUIMsg=("First class can only accomodate bookings of two or less seats.");
+					Toolkit.getDefaultToolkit().beep();
+					available=false;
+				}
+				if (passNum == 2 && flight.hasTwo(classRow) == false && available==true)
+					//checks to see if two seats available
+				{
+					GUIMsg=("Sorry, there are no two seats next to one another available.\n" +
+							"\tPlease enter another choice.");
+					Toolkit.getDefaultToolkit().beep();
+					available=false;
+				}
+			}
+			if (classType==2)
+			{
+				if (flight.isFull(flight.getEconRow()) == false && available==true)
+				{
+					GUIMsg=("Sorry, all economy class seats are booked.\n " +
+							"\tPlease enter another choice.");
+					Toolkit.getDefaultToolkit().beep();
+					available=false;
+				}
+				if (passNum == 3 && flight.hasThree(classRow) == false && available==true)
+					//checks to see if three seats available
+				{
+					GUIMsg=("Sorry, there are no three seats next to one another available.\n" +
+							"\tPlease enter another choice.");
+					Toolkit.getDefaultToolkit().beep();
+					available=false;
+				}
+				if (passNum == 2 && flight.hasTwo(classRow) == false && available==true)//checks to see if two seats available
+				{
+					GUIMsg=("Sorry, there are no two seats next to one another available.\n" +
+							"\tPlease enter another choice.");
+					Toolkit.getDefaultToolkit().beep();
+					available=false;
+				}
+			}	
+			int[]seats=new int[passNum];
+			row = flight.findRowSeats(seatPref, passNum, classRow)[0];
+			boolean canBook=true;
+			for (int i = 0; i < passNum; i++)
+			{
+				seats[i] = flight.findRowSeats(seatPref, passNum, classRow)[i + 1];
+				if (seats[i] == -1)//catches case where no seats are open
+					canBook=false;
+			}
+			if (row == -1 || canBook==false && available==true)
+			{
+				if(seatPref == 'a')
+					GUIMsg=("Sorry, there are no aisle seats open.\n \tPlease choose again.");
+				else if (seatPref == 'w')
+					GUIMsg=("Sorry, there are no window seats open.\n \tPlease choose again.");
+				else if (seatPref == 'm')
+					GUIMsg=("Sorry, there are no middle seats open.\n \tPlease choose again.");
+				available=false;
+			}
+			break;
+		}
+		if (available==false)
+		{
+			history.append("\t"+GUIMsg+"\n");	
+		}
+	}
+	public void getEconBookingInfo()
+	{
+		String cMSG = null, sMSG = null, pMSG = null;
+		classRow=flight.getEconRow();
+		classType=2;
+		cMSG=("Economy class - ");
+
+		if (s1EB.isSelected())
+		{
+			passNum=1;
+			sMSG=("One seat - ");
+		}
+		if (s2EB.isSelected())
+		{
+			passNum=2;
+			sMSG=("Two seats - ");
+		}
+		if (s3EB.isSelected())
+		{
+			passNum=3;
+			sMSG=("Three seats - ");
+		}
+		if (winEB.isSelected())
+		{
+			pMSG=("Window seat");
+			seatPref = 'w';
+		}
+		if (midEB.isSelected())
+		{
+			pMSG=("Middle seat");
+			seatPref = 'm';
+		}
+		if (aisEB.isSelected())
+		{
+			pMSG=("Aisle seat");
+			seatPref = 'a';
+		}
+		GUIMsg=(cMSG+sMSG+pMSG+"\n");
+		System.out.print(GUIMsg);
+		history.append(GUIMsg);
+	}
+	public void getFirstBookingInfo()
+	{
+		String cMSG = null, sMSG = null, pMSG = null;
+		classRow=flight.getFirstRow();
+		classType=1;
+		cMSG=("First class - ");
+
+		if (s1FB.isSelected())
+		{
+			passNum=1;
+			sMSG=("One seat - ");
+		}
+		if (s2FB.isSelected())
+		{
+			passNum=2;
+			sMSG=("Two seats - ");
+		}
+		if (winFB.isSelected())
+		{
+			pMSG=("Window seat");
+			seatPref = 'w';
+		}
+		if (aisFB.isSelected())
+		{
+			pMSG=("Aisle seat");
+			seatPref = 'a';
+		}
+		GUIMsg=(cMSG+sMSG+pMSG+"\n");
+		System.out.print(GUIMsg);
+		history.append(GUIMsg);
+	}
+	public static void giveSeat()
+	{	
+		while (ordered == false)
+		{
+			int[] seats = new int[passNum];
+			row = flight.findRowSeats(seatPref, passNum, classRow)[0];
+
+			for (int i = 0; i < passNum; i++)
+			{
+				seats[i] = flight.findRowSeats(seatPref, passNum, classRow)[i + 1];
+			}			
+			//passNum holds the value of the number of passengers at this point
+
+			int[] whichSeats = flight.findRowSeats(seatPref, passNum, classRow);
+			message =("\tRow:  " + (row + 1));
+			for (int i = 1; i < (passNum + 1); i++)
+			{
+				flight.setRowSeatAvail(row, whichSeats[i], true, classRow);
+				message+=(", Seat: " + (whichSeats[i] + 1));
+			}
+			message+=("\n");
+			history.append(message);
+			ordered = true;			
+		}
+	}
+}
