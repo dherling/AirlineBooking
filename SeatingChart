@@ -1,0 +1,114 @@
+import java.awt.*;
+import javax.swing.*;
+
+/**
+ * The following class creates a graphic to display the booked and empty seats on the plane.
+ * @author David Herling and Benjamin Czerwin
+ *
+ */
+@SuppressWarnings("serial")
+public class SeatingChart extends JComponent 
+{
+	private Airplane flight;
+	private Color darkCol = GUI2.darkCol;
+	private Color mainCol = GUI2.mainCol;
+	//private Color liteCol = GUI2.liteCol;
+	private Color hiliteCol = GUI2.hiliteCol;
+	int ShiftNorth(int p, int distance) {
+		   return (p - distance);
+		   }
+	int ShiftSouth(int p, int distance) {
+		   return (p + distance);
+		   }
+	int ShiftEast(int p, int distance) {
+		   return (p + distance);
+		   }
+	int ShiftWest(int p, int distance) {
+		   return (p - distance);
+		   }
+	public SeatingChart(Airplane flight)
+	{
+		this.flight = flight;
+	}
+	
+	public void paint(Graphics plane) 
+	{
+
+		int firstRows=flight.getFirstRow().length;
+		int firstSeats=flight.getSeats(0,flight.getFirstRow()).length;
+		int firstMid=firstSeats/2-1;
+		int econRows=flight.getEconRow().length;
+		int econSeats=flight.getSeats(0,flight.getEconRow()).length;
+		int econMid=econSeats/2-1;
+		int minHeight=0;
+		int x=20;
+		int y=100;
+		int front=20;
+		int top=100;
+		int bulkX=0;
+		for (int i = 0; i < firstRows; i++)
+		{
+			y=top;
+			for (int j = 0; j < (firstSeats); j++)//populate First class, top row
+			{
+				if(flight.getRowSeatAvail(i, j, flight.getFirstRow()) == true)
+					plane.setColor(darkCol);
+				else
+					plane.setColor(mainCol);
+				
+				plane.fillRect(x, y, 14, 14);
+				plane.setColor(hiliteCol);
+				plane.drawRect(x, y, 14, 14);
+				y=y+14;
+				if (j==firstMid)
+					y+=14;
+			}
+			minHeight=(y-top);
+			x=x+28;//space for seats (14) plus legs (14)
+		}
+		bulkX=(x+2);
+		x=x+12;//space for bulkhead (4) and legs(6) and space (2)
+		for (int i = 0; i < econRows; i++)
+		{
+			y=top;
+			for (int j = 0; j < (econSeats); j++)//populate Economy class, top row
+			{
+				if(flight.getRowSeatAvail(i, j, flight.getEconRow()) == true)
+					plane.setColor(darkCol);
+				else
+					plane.setColor(mainCol);
+				
+				plane.fillRect(x, y, 10, 10);
+				plane.setColor(hiliteCol);
+				plane.drawRect(x, y, 10, 10);
+				y=y+10;
+				if (j==econMid)
+					y+=14;
+			}
+
+			if ((y-top)>minHeight)
+				minHeight=(y-top);
+			x=x+16;//space for seats (10) plus legs (6)
+		}	
+		plane.setColor(mainCol);	
+		plane.fillRect(bulkX+20, top-22, 14, 14);
+		plane.setFont(new Font("", Font.BOLD , 24));
+		plane.drawString("LIU AIRLINES - FLIGHT 1156 - SEATING CHART", ShiftWest (front, 1), ShiftNorth (50, 1));
+		plane.drawString("LIU AIRLINES - FLIGHT 1156 - SEATING CHART", ShiftWest (front, 1), ShiftSouth (50, 1));
+		plane.drawString("LIU AIRLINES - FLIGHT 1156 - SEATING CHART", ShiftEast (front, 1), ShiftNorth (50, 1));
+		plane.drawString("LIU AIRLINES - FLIGHT 1156 - SEATING CHART", ShiftEast (front, 1), ShiftSouth (50, 1));
+		plane.setColor(darkCol);
+		plane.drawString("LIU AIRLINES - FLIGHT 1156 - SEATING CHART", front, 50);
+		plane.setFont(new Font("TimesRoman", Font.PLAIN, 16)); 
+		plane.drawString("FIRST CLASS", front,top+minHeight+20);
+		plane.drawString("ECONOMY CLASS", bulkX+20,top+minHeight+20);
+		//plane.drawString("First class may only book one or two seats.\n",front,top+minHeight+40);
+		//plane.drawString("First class may only book aisle or window seats.", front,top+minHeight+60);
+		plane.drawString("- FULL SEAT", front+18,top-10);
+		plane.drawString("- EMPTY SEAT", bulkX+40,top-10);
+		plane.fillRect(front, top-22, 14, 14);			
+		plane.drawRect(front-4, top-4, (x-front+8), (minHeight+8));
+		plane.fillRect(bulkX, top-4, 4, minHeight+8);
+	}
+}
+
