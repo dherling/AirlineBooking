@@ -1,0 +1,237 @@
+/**
+ * The following class is for row objects. Each row has an array of seats. There are methods to return the array,
+ * check specific seat states and availability, search for three seats, two seats, and one seat, and find a seat
+ * matching a preference and passenger amoung number.
+ * @author Benjamin Czerwin and David Herling
+ * Programming Assignment 2
+ * CUS 1156
+ *
+ */
+
+public class Rows {
+
+	//Contains an array of seat objects for each row.
+	private Seats[] seats;
+	
+	
+	/**
+	 * Returns the seats array for the row.
+	 * @return seats
+	 */
+	public Seats[] getSeats()
+	{
+		return seats;
+	}
+
+	
+	/**
+	 * Constructs a row and sets the seats in each row to the required state.
+	 * @param numSeats
+	 */
+	public Rows(int numSeats)
+	{
+		seats = new Seats[numSeats];
+		
+		for (int i = 0; i < seats.length; i++)
+		{
+			seats[i] = new Seats();
+			seats[i].setState('m');//sets all seats to middle
+		}
+		
+		//set outer most seats windows
+		seats[0].setState('w');
+		seats[seats.length - 1].setState('w');
+		
+		//sets inner most seats as aisles
+		seats[(seats.length / 2)].setState('a');
+		seats[(seats.length / 2 - 1)].setState('a');
+	}
+	
+	
+	/**
+	 * Sets the state of a specified seat in the row.
+	 * @param seat
+	 * @param type
+	 */
+	public void setSeatState(int seat, char type)
+	{
+		seats[seat].setState(type);
+	}
+	/**
+	 * Returns the state of a specified seat in the row.
+	 * @param seat
+	 * @return seats[seat].getState()
+	 */
+	public char getSeatState(int seat)
+	{
+		return seats[seat].getState();
+	}
+	
+	
+	/**
+	 * Books a specified seat in the row.
+	 * @param seat
+	 * @param occ
+	 */
+	public void setSeatAvail(int seat, boolean occ)
+	{
+		seats[seat].setAvail(occ);
+	}
+	/**
+	 * Returns the availability of a specified seat in the row.
+	 * @param seat
+	 * @return seats[seat].getIsFull()
+	 */
+	public boolean getSeatAvail(int seat)
+	{
+		return seats[seat].getIsFull();
+	}
+	
+	
+	
+	/**
+	 * Checks to see if a one seat available in the row.
+	 * @return hasOne
+	 */
+	public boolean hasOne()
+	{
+		boolean hasOne = false;
+		for (int i = 0; i < seats.length; i++)
+			if (seats[i].getIsFull() == false)
+				hasOne = true;
+		return hasOne;
+	}
+	/**
+	 * Checks to see if two seats next to one another are available in the row.
+	 * @return hasTwo
+	 */
+	public boolean hasTwo()
+	{
+		boolean hasTwo = false;
+		int count = 0;
+		for (int i = seats.length - 1; i >= 0; i--)
+		{
+			if(seats[i].getIsFull() == false)
+				count++;
+			else
+				count = 0;
+			if(count == 2)
+				hasTwo = true;
+		}
+		return hasTwo;
+	}	
+	/**
+	 * Checks to see if three seats next to one another are available in the row.
+	 * @return hasThree
+	 */
+	public boolean hasThree()
+	{
+		boolean hasThree = false;
+		int count = 0;
+		for (int i = seats.length - 1; i >= 0; i--)
+		{
+			if(seats[i].getIsFull() == false)
+				count++;
+			else
+				count = 0;
+			if(count == 3)
+				hasThree = true;
+		}
+		return hasThree;
+	}
+	
+
+	/**
+	 * Searches for a matching seat in the row with the correct preference and availability.
+	 * It returns an array of the seats in the row that match the description, otherwise it fills the array with -1.
+	 * @param preference
+	 * @param numPassengers
+	 * @return whichSeats
+	 */
+	public int[] findSeats (char preference, int numPassengers)
+	{		
+		int[] whichSeats = new int[numPassengers];
+		for (int i = 0; i < numPassengers; i++)//fills the array with -1
+			whichSeats[i] = -1;
+				
+		label1: for (int i = 0; i < seats.length; i++)//checks each seat
+		{			
+			if(seats[i].getState() == preference)
+			{
+				if(seats[i].getIsFull() == false)
+				{
+					if(numPassengers == 1)
+					{
+						whichSeats[0] = i;
+					}
+					else if(numPassengers == 2)
+					{
+						boolean leftSeat;
+						boolean rightSeat;
+						
+						whichSeats[0] = i;
+						
+						try {leftSeat = seats[i - 1].getIsFull();}
+						catch (IndexOutOfBoundsException exception) {leftSeat = true;}
+						
+						try {rightSeat = seats[i + 1].getIsFull();}
+						catch (IndexOutOfBoundsException exception) {rightSeat = true;}
+
+						if(leftSeat == false)
+							whichSeats[1] = i - 1;
+						else if (rightSeat == false)
+							whichSeats[1] = i + 1;
+					}
+					else if(numPassengers == 3)
+					{
+						boolean leftSeat;
+						boolean leftLeftSeat;
+						boolean rightSeat;
+						boolean rightRightSeat;
+						
+						whichSeats[0] = i;
+						
+						try {leftSeat = seats[i - 1].getIsFull();}
+						catch (IndexOutOfBoundsException exception) {leftSeat = true;}
+						
+						try {leftLeftSeat = seats[i - 2].getIsFull();}
+						catch (IndexOutOfBoundsException exception) {leftLeftSeat = true;}
+						
+						try {rightSeat = seats[i + 1].getIsFull();}
+						catch (IndexOutOfBoundsException exception) {rightSeat = true;}
+						
+						try {rightRightSeat = seats[i + 2].getIsFull();}
+						catch (IndexOutOfBoundsException exception) {rightRightSeat = true;}
+
+						if (leftSeat == false && rightSeat == false)
+						{
+							whichSeats[1] = i - 1;
+							whichSeats[2] = i + 1;
+						}
+						else if (leftLeftSeat == false && leftSeat == false)
+						{
+							whichSeats[1] = i - 1;
+							whichSeats[2] = i - 2;
+						}
+						else if (rightRightSeat == false && rightSeat == false)
+						{
+							whichSeats[1] = i + 1;
+							whichSeats[2] = i + 2;
+						}
+					}
+				}
+			}
+			
+			int count = 0;
+			for (int j = 0; j < whichSeats.length; j++)//checks to see if it found a match, if so it stops
+			{
+				if(whichSeats[j] != -1)
+					count++;
+				if (count == numPassengers)
+					break label1;
+			}
+		}
+		
+		return whichSeats;
+	}
+}
