@@ -1,0 +1,194 @@
+/**
+ * The following class creates a first class array of rows and an economy class array of rows. 
+ * The methods available include returning the first class and economy class array of rows, getting and setting individual
+ * seat states and availabilities, checking if one, two, or three seats are available next to one another and finds seats that
+ * match the users desired booking.
+ * @author Benjamin Czerwin and David Herling
+ * Programming Assignment 2
+ * CUS 1156
+ *
+ */
+
+public class Airplane {
+
+	//creates an array for first class rows
+	private Rows[] firstRows;
+	//creates an array for economy class rows
+	private Rows[] econRows;
+
+	
+	/**
+	 * Returns the first class array of rows.
+	 * @return firstRows
+	 */
+	public Rows[] getFirstRow()	{return firstRows;}
+	/**
+	 * Returns the economy class array of rows.
+	 * @return econRows
+	 */
+	public Rows[] getEconRow() {return econRows;}
+	
+		
+	/**
+	 * Constructs an airplane with two classes, a first class array of rows and an economy class array of rows.
+	 * @param howManyRowsFirst
+	 * @param howManySeatsFirst
+	 * @param howManyRowsEcon
+	 * @param howManySeatsEcon
+	 */
+	public Airplane(int howManyRowsFirst, int howManySeatsFirst, int howManyRowsEcon, int howManySeatsEcon)
+	{
+		firstRows = new Rows[(howManyRowsFirst)];
+		
+		for (int i = 0; i < firstRows.length; i++)
+		{
+			firstRows[i] = new Rows(howManySeatsFirst);
+		}
+		
+		econRows = new Rows[(howManyRowsEcon)];
+		
+		for (int i = 0; i < econRows.length; i++)
+		{
+			econRows[i] = new Rows(howManySeatsEcon);
+		}
+	}
+	
+	
+	/**
+	 * Sets the state in a specified seat in a specified row.
+	 * @param whichRow
+	 * @param whichSeat
+	 * @param type
+	 * @param row
+	 */
+	public void setRowSeatState(int whichRow, int whichSeat, char type, Rows[] row)
+	{
+		row[whichRow].setSeatState(whichSeat, type);
+	}
+	/**
+	 * Returns the state of a specified seat in a specified row.
+	 * @param whichRow
+	 * @param whichSeat
+	 * @param row
+	 * @return row[whichRow].getSeatState(whichSeat)
+	 */
+	public char getRowSeatState(int whichRow, int whichSeat, Rows[] row)
+	{
+		return row[whichRow].getSeatState(whichSeat);
+	}
+	
+	
+	/**
+	 * Book a specific seat in a specific row.
+	 * @param whichRow
+	 * @param whichSeat
+	 * @param occ
+	 * @param row
+	 */
+	public void setRowSeatAvail(int whichRow, int whichSeat, boolean occ, Rows[] row)
+	{
+		row[whichRow].setSeatAvail(whichSeat, occ);
+	}
+	/**
+	 * Returns the availability in a specified seat in a specified row.
+	 * @param whichRow
+	 * @param whichSeat
+	 * @param row
+	 * @return row[whichRow].getSeatAvail(whichSeat)
+	 */
+	public boolean getRowSeatAvail(int whichRow, int whichSeat, Rows[] row)
+	{
+		return row[whichRow].getSeatAvail(whichSeat);
+	}
+	
+	
+	
+	/**
+	 * Returns a specific seat in a specific row.
+	 * @param whichRow
+	 * @param row
+	 * @return row[whichRow].getSeats()
+	 */
+	public Seats[] getSeats(int whichRow, Rows[] row)
+	{
+		return row[whichRow].getSeats();
+	}
+	
+	
+	
+	/**
+	 * Returns if a specific row is full.
+	 * @param rows
+	 * @return isFull;
+	 */
+	public boolean isFull(Rows[] rows)
+	{
+		boolean isFull = false;
+		for (int i = 0; i < rows.length; i++)
+			if (rows[i].hasOne() == true)
+				isFull = true;
+		return isFull;
+	}
+	/**
+	 * Returns if a specified row has two seats next to one another available.
+	 * @param rows
+	 * @return hasTwo
+	 */
+	public boolean hasTwo(Rows[] rows)
+	{
+		boolean hasTwo = false;
+		for (int i = 0; i < rows.length; i++)
+			if (rows[i].hasTwo() == true)
+				hasTwo = true;
+		return hasTwo;
+	}
+	/**
+	 * Returns if a specified row has three seats next to one another available.
+	 * @param rows
+	 * @return hasThree
+	 */
+	public boolean hasThree(Rows[] rows)
+	{
+		boolean hasThree = false;
+		for (int i = 0; i < rows.length; i++)
+			if (rows[i].hasThree() == true)
+				hasThree = true;
+		return hasThree;
+	}
+
+	
+	/**
+	 * Returns the row and seat numbers in an array that match the specified preference and passenger number.
+	 * @param preference
+	 * @param numPassengers
+	 * @param rows
+	 * @return rowSeats
+	 */
+	public int[] findRowSeats(char preference, int numPassengers, Rows[] rows)
+	{	
+		int[] rowSeats = new int[(numPassengers + 1)];//creates an array for the row number and each seat number
+		
+		for (int i = 0; i < (numPassengers + 1); i++)//fills array with -1
+			rowSeats[i] = -1;
+		
+		label1: for (int i = 0; i < rows.length; i++)//checks all the rows
+		{			
+			for (int j = 0; j < numPassengers; j++)//copies over seats[] array into rowSeats[] array
+			{
+				rowSeats[0] = i;
+				rowSeats[j + 1] = rows[i].findSeats(preference, numPassengers)[j];
+			}
+			
+			int count = 0;
+			for (int j = 1; j < rowSeats.length; j++)//checks to see if it found a match (no -1's in array)
+			{
+				if(rowSeats[j] != -1)
+					count++;
+				if (count == numPassengers)
+					break label1;
+			}
+		}
+		
+		return rowSeats;
+	}
+}
