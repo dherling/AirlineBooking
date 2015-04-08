@@ -1,0 +1,62 @@
+/**
+ * The following class is for seat objects. Each seat has an availability boolean and a state character.
+ * The class includes methods to get and set these variables and a constructor method to create open seats.
+ * @author Benjamin Czerwin and David Herling
+ * Programming Assignment 2
+ * CUS 1156
+ * 
+ */
+
+public class Seats {
+
+	//False means an open seat and True is a full seat
+	private boolean isFull;
+	
+	//The three available states are 'a' 'w' 'm'
+	private char state = 0;
+	
+
+	/**
+	 * Creates a seat and sets it as open.
+	 */
+	public Seats()
+	{
+		this.isFull = false;
+	}
+	
+	
+	/**
+	 * Sets the availability of a seat.
+	 * @param state
+	 */
+	public void setAvail(boolean state)
+	{
+		this.isFull = state;
+	}
+	/**
+	 * Returns the availability of a seat.
+	 * @return isFull
+	 */
+	public boolean getIsFull()
+	{
+		return isFull;
+	}
+	
+	
+	/**
+	 * Sets the state of the seat.
+	 * @param state
+	 */
+	public void setState(char state)
+	{
+		this.state = state;
+	}
+	/**
+	 * Returns the state of the seat.
+	 * @return state
+	 */
+	public char getState()
+	{
+		return state;
+	}
+}
